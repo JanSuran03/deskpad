@@ -1,6 +1,8 @@
 (ns deskpad.util
   (:refer-clojure :exclude [case])
-  (:import (org.lwjgl.system MemoryUtil)))
+  (:require [deskpad.opengl.gl :as gl])
+  (:import (org.lwjgl.system MemoryUtil)
+           (org.lwjgl.opengl GL33)))
 
 (defonce window* (atom -1))
 
@@ -33,3 +35,15 @@
                                             "LOG: " message
                                             "\n***************************************")
                                        message))))
+
+(defn sizeof [gl-type-kw]
+  (case gl-type-kw
+    (:gl-float gl/FLOAT :gl-unsigned-int
+      gl/UNSIGNED-INT :gl-int gl/INT) 4
+    (:gl-byte gl/BYTE :gl-unsigned-byte gl/UNSIGNED-BYTE) 1))
+(defn gl-type [gl-type-kw]
+  ({:gl-float        gl/FLOAT
+    :gl-int          gl/INT
+    :gl-unsigned-int gl/UNSIGNED-INT
+    :gl-byte         gl/UNSIGNED-BYTE}
+   gl-type-kw))
