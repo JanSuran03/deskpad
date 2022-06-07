@@ -1,4 +1,5 @@
 (ns deskpad.debug
+  (:refer-clojure :exclude [assert])
   (:import (org.lwjgl.opengl GL33)))
 
 (defonce no-error GL33/GL_NO_ERROR)

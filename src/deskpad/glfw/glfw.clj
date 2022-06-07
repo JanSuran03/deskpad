@@ -1,6 +1,7 @@
 (ns deskpad.glfw.glfw
   (:require [deskpad.util :refer [window* null]])
-  (:import (org.lwjgl.glfw GLFW GLFWErrorCallback GLFWKeyCallback Callbacks GLFWVidMode)
+  (:import (org.lwjgl.glfw Callbacks GLFW GLFWErrorCallback GLFWFramebufferSizeCallback
+                           GLFWKeyCallback GLFWVidMode)
            (org.lwjgl.system MemoryUtil MemoryStack)
            (java.nio IntBuffer)))
 ;; ------------------------------------------------------
@@ -25,7 +26,7 @@
                                        (invoke [~window ~key ~scancode ~action ~mode] ~@body))))
 
 (defmacro set-framebuffer-size-callback [[window width height] & body]
-  `(GLFW/glfwSetKeyCallback @window* (proxy [GLFWKeyCallback] []
+  `(GLFW/glfwSetFramebufferSizeCallback @window* (proxy [GLFWFramebufferSizeCallback] []
                                        (invoke [~window ~width ~height] ~@body))))
 
 (defn free-callbacks [] (Callbacks/glfwFreeCallbacks @window*))

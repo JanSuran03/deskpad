@@ -70,14 +70,12 @@
 ;; shader program
 ;; ------------------------------------------------------
 (defn- create-shader-program [] (GL33/glCreateProgram))
-(defn- attach-shader-to-shader-program [shader-program compiled-shader]
-  (GL33/glAttachShader shader-program compiled-shader))
-(defn- detach-shader-from-shader-program [shader-program compiled-shader]
-  (GL33/glDetachShader shader-program compiled-shader))
+(defn- attach-shader-to-shader-program [shader-program compiled-shader] (GL33/glAttachShader shader-program compiled-shader))
+(defn- detach-shader-from-shader-program [shader-program compiled-shader] (GL33/glDetachShader shader-program compiled-shader))
 (defn- link-shader-program [shader-program] (GL33/glLinkProgram shader-program))
-(defn- get-shader-program-status [^Integer shader-program ^Integer parameter-name]
-  (GL33/glGetProgrami shader-program parameter-name))
+(defn- get-shader-program-status [^Integer shader-program ^Integer parameter-name] (GL33/glGetProgrami shader-program parameter-name))
 (defn- get-shader-program-info-log [shader-program] (GL33/glGetProgramInfoLog shader-program))
+
 (defn- assert-shader-program-linked [shader-program]
   (when-not (util/ok? (get-shader-program-status shader-program GL33/GL_LINK_STATUS))
     (throw (RuntimeException. (str "Shader program linking failed: "
@@ -89,7 +87,6 @@
                                    (get-shader-program-info-log shader-program))))))
 
 (defprotocol IShaderProgram
-  (get-uniform-location [this uniform-name] "Returns the location of a uniform bound to the shader program.")
   (set-uniform-4f [this uniform-name v1 v2 v3 v4] "Sets the value of a vec4 uniform bound to the shader program.")
   (set-uniform-1i [this uniform-name int-val] "Sets the value of an integer uniform bound to the shader program.")
   (set-uniform-mat4f [this uniform-name mat4f] "Sets the value of an matrix4f uniform bound to the shader program.")
@@ -97,7 +94,7 @@
 
 (defprotocol IMutableUniformsFieldAccess
   (cache-found-uniform [this uniform-name uniform-location] "Caches a found uniform.")
-  (get-uniform-location [this uniform-name])
+  (get-uniform-location [this uniform-name]"Returns the location of a uniform bound to the shader program.")
   (get-uniforms [this] "Returns a mutable reference to a Clojure hash-map with cached uniforms."))
 
 (deftype ShaderProgram [^Integer shader-program-id ^:unsynchronized-mutable ^PersistentHashMap uniforms]
@@ -127,7 +124,7 @@
       (GL33/glUniform1i uniform-location int-val)
       (throw (RuntimeException. (str "Can't set 1i uniform <" uniform-name "> for shader "
                                      shader-program-id ": Uniform not found.")))))
-  (set-uniform-mat4f [this uniform-name ^"[F" mat4f]
+  (set-uniform-mat4f [this uniform-name mat4f]
     (let [shader-program shader-program-id]
       (use-shader-program this)
       (if-let [uniform-location (get-uniform-location this uniform-name)]
