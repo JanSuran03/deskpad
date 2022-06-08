@@ -1,12 +1,7 @@
 (ns deskpad.util
-  (:refer-clojure :exclude [case])
-  (:require [deskpad.opengl.gl :as gl])
-  (:import (org.lwjgl.system MemoryUtil)
-           (org.lwjgl.opengl GL33)))
+  (:refer-clojure :exclude [case]))
 
 (defonce window* (atom -1))
-
-(defonce null MemoryUtil/NULL)
 
 (defmacro case [expr & clauses]
   (let [expanded (loop [[condition then :as clauses] clauses
@@ -24,10 +19,6 @@
       `(clojure.core/case ~expr ~@expanded nil)
       (list* 'clojure.core/case expr expanded))))
 
-(defn ok?
-  "Equal to (= x GL33/GL_TRUE)."
-  [x] (= x 1))
-
 (defn log
   ([message] (log message false))
   ([message important?]
@@ -36,14 +27,4 @@
                                             "\n***************************************")
                                        message))))
 
-(defn sizeof [gl-type-kw]
-  (case gl-type-kw
-    (:gl-float gl/FLOAT :gl-unsigned-int
-      gl/UNSIGNED-INT :gl-int gl/INT) 4
-    (:gl-byte gl/BYTE :gl-unsigned-byte gl/UNSIGNED-BYTE) 1))
-(defn gl-type [gl-type-kw]
-  ({:gl-float        gl/FLOAT
-    :gl-int          gl/INT
-    :gl-unsigned-int gl/UNSIGNED-INT
-    :gl-byte         gl/UNSIGNED-BYTE}
-   gl-type-kw))
+(defn shaders-root [s] (str "resources/shaders/" s))

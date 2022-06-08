@@ -59,7 +59,8 @@
     lwjgl-modules))
 
 (def all-dependencies
-  (into '[[io.github.spair/imgui-java-app "1.86.4"]
+  (into '[[org.clojars.jansuran03/cljgl "0.1.0"]
+          [io.github.spair/imgui-java-app "1.86.4"]
           [me.raynes/fs "1.4.6"]
           [org.clojure/clojure "1.10.1"]
           [org.clojure/core.async "1.5.648"]
