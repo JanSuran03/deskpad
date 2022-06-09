@@ -61,16 +61,15 @@
 (defn init []
   (init-window)
   ;(gl/blend)
-  (renderer/setup-renderer
-    {:shaders-source-path        (util/shaders-root "triangle-with-texture.glsl")
-     :vertex-positions           vertex-positions
-     :vertex-positions-indices   vertex-positions-indices
-     :attributes-setups          [{:components 2
-                                   :gl-type    :gl-float
-                                   :normalize? false}]
-     :shader-program-lookup-name :shader/hello-rectangle
-     :renderer-id                :renderer/hello-rectangle})
-  (reset! renderer/rendering-order [:renderer/hello-rectangle])
+  (renderer/setup-renderer {:shaders-source-path        (util/shaders-root "triangle-with-texture.glsl")
+                            :vertex-positions           vertex-positions
+                            :vertex-positions-indices   vertex-positions-indices
+                            :attributes-setups          [{:components 2
+                                                          :gl-type    :gl-float
+                                                          :normalize? false}]
+                            :shader-program-lookup-name :shader/hello-rectangle
+                            :renderer-id                :renderer/hello-rectangle})
+  (renderer/change-rendering-order [:renderer/hello-rectangle])
   (glfw/show-window @window*))
 
 (defn gl-loop-cleanup []
