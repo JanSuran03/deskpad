@@ -71,5 +71,5 @@
   :dependencies ~all-dependencies
   :java-source-paths ["src/java"]
   :jvm-opts ^:replace ~(jvm-opts)
-  :main clj-game.core
+  :main deskpad.core
   :repl-options {:init-ns deskpad.core})
