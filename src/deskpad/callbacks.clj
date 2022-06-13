@@ -6,13 +6,12 @@
             [cljgl.opengl.shaders :as shaders]
             [cljgl.math.matrix4f :as mat4f]
             [cljgl.opengl.gl :as gl]
-            [cljgl.opengl.renderer :as renderer]
-            [cljgl.common.gl-util :as gl-util])
+            [cljgl.opengl.renderer :as renderer])
   (:import (org.lwjgl.glfw GLFW GLFWCursorPosCallback GLFWCursorEnterCallback GLFWScrollCallback GLFWCharCallback)))
 
-(def default-width 1000)
-(def default-height 600)
-(def scale-base 0.9)
+(def default-width 1760)
+(def default-height 990)
+(def scale-base 0.95)
 
 (def state* (atom {:translate-x    0
                    :translate-y    0
@@ -24,14 +23,12 @@
                    :scroll         0}))
 
 (defn calculate-mvp [{:keys [window-width window-height translate-x translate-y scroll] :as state}]
-  (let [pow (Math/pow scale-base scroll)
-        [translate-x translate-y width height]
-        (map #(* pow %)
-             [translate-x translate-y window-width window-height])]
+  (let [pow (Math/pow scale-base scroll)]
     (mat4f/model-view-projection-matrix
-      {:projection-matrix (mat4f/orthogonal translate-x (+ translate-x width)
-                                            translate-y (+ translate-y height)
-                                            -1 1)})))
+      {:projection-matrix (mat4f/orthogonal translate-x (+ translate-x window-width)
+                                            translate-y (+ translate-y window-height)
+                                            -1 1)
+       :scale             (repeat 3 pow)})))
 
 (defn init-callbacks []
   (callbacks/set-key-callback @window*
@@ -65,7 +62,7 @@
 
   (callbacks/set-scroll-callback @window*
     (fn [window x-offset y-offset]
-      (swap! state* update :scroll + y-offset)
+      (swap! state* update :scroll - y-offset)
       (let [mvp (calculate-mvp @state*)]
         (shaders/set-uniform-mat4f (.-shader_program (renderer/get-renderer :renderer/hello-rectangle))
                                    "u_MVP"
@@ -74,5 +71,5 @@
   (callbacks/set-mouse-callback @window*
     (fn [^Long window button ^Integer action mods]
       (swap! state* assoc :mouse-pressed? (case action 0 false, 1 true))
-      (let [[^doubles bufx ^doubles bufy] (repeatedly #(double-array 1))]
-        (GLFW/glfwGetCursorPos window bufx bufy)))))
+      #_(let [[^doubles bufx ^doubles bufy] (repeatedly #(double-array 1))]
+          (GLFW/glfwGetCursorPos window bufx bufy)))))

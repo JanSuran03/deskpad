@@ -16,9 +16,6 @@
 
 (defonce running?* (atom false))
 
-(def default-width 1000)
-(def default-height 600)
-
 (def vertex-positions (list 100 100 0 0, 700 100 1 0, 700 500 1 1, 100 500 0 1))
 (def vertpos {:data  (float-array vertex-positions)
               :usage :static-draw})
@@ -34,7 +31,7 @@
   (glfw/default-window-hints)
   (glfw/window-hint-visible false)
   (glfw/window-hint-resizable true)
-  (reset! window* (glfw/create-window default-width default-height "Hello GL"))
+  (reset! window* (glfw/create-window callbacks/default-width callbacks/default-height "Hello GL"))
   (when (nil? @window*)
     (throw (RuntimeException. "Failed to create GLFW window")))
   (callbacks/init-callbacks)
@@ -67,7 +64,7 @@
   (renderer/change-rendering-order [:renderer/hello-rectangle])
   (glfw/show-window @window*)
   (let [mvp (mat4f/model-view-projection-matrix
-              {:projection-matrix (mat4f/orthogonal 0 default-width 0 default-height -1 1)})]
+              {:projection-matrix (mat4f/orthogonal 0 callbacks/default-width 0 callbacks/default-height -1 1)})]
     (shaders/set-uniform-mat4f (.-shader_program (renderer/get-renderer :renderer/hello-rectangle))
                                "u_MVP"
                                mvp)))
