@@ -28,3 +28,4 @@
                                        message))))
 
 (defn shaders-root [s] (str "resources/shaders/" s))
+(defn images-root [s] (str "resources/textures/" s))
