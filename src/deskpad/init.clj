@@ -3,8 +3,8 @@
             [cljgl.common.cleanup :as cleanup]
             [cljgl.common.colors :as colors]
             [cljgl.common.gl-util :as gl-util]
+            [deskpad.callbacks :as callbacks]
             [cljgl.glfw.glfw :as glfw]
-            [cljgl.glfw.keys :as keys]
             [cljgl.math.matrix4f :as mat4f]
             [cljgl.opengl.gl :as gl]
             [cljgl.opengl.renderer :as renderer]
@@ -18,10 +18,6 @@
 
 (def default-width 1000)
 (def default-height 600)
-(def width-height (atom [default-width default-height]))
-
-(def x (atom 0))
-(def y (atom 0))
 
 (def vertex-positions (list 100 100 0 0, 700 100 1 0, 700 500 1 1, 100 500 0 1))
 (def vertpos {:data  (float-array vertex-positions)
@@ -30,28 +26,6 @@
 (def vertex-positions-indices (list 0 1 2 2 3 0))
 (def vertposidxs {:data  (int-array vertex-positions-indices)
                   :usage :static-draw})
-
-(defn init-callbacks []
-  (glfw/set-key-callback @window*
-    (fn [window key scancode action mods]
-      (util/case action
-        keys/release (util/case key
-                       keys/esc (glfw/close-window window)
-                       keys/space (aset-float vertpos 0 -0.8))
-        keys/hold (util/case key
-                    keys/left (swap! x #(- % 10))
-                    keys/right (swap! x #(+ % 10))
-                    keys/down (swap! y #(- % 10))
-                    keys/up (swap! y #(+ % 10))))))
-  (glfw/set-framebuffer-size-callback @window*
-    (fn [window width height]
-      (reset! width-height [width height])
-      (gl/viewport 0 0 width height)
-      (let [mvp (mat4f/model-view-projection-matrix
-                  {:projection-matrix (mat4f/orthogonal 0 width 0 height -1 1)})]
-        (shaders/set-uniform-mat4f (.-shader_program (renderer/get-renderer :renderer/hello-rectangle))
-                                   "u_MVP"
-                                   mvp)))))
 
 (defn init-window []
   (glfw/enable-error-callback-print)
@@ -63,7 +37,7 @@
   (reset! window* (glfw/create-window default-width default-height "Hello GL"))
   (when (nil? @window*)
     (throw (RuntimeException. "Failed to create GLFW window")))
-  (init-callbacks)
+  (callbacks/init-callbacks)
   (glfw/make-context-current @window*)
   (gl/create-capabilities)
   (glfw/center-window @window*)
@@ -118,7 +92,7 @@
        (finally
          (glfw/free-callbacks @window*)
          (glfw/destroy-window @window*)
-         (reset! window* nil)
+         (reset! window* -1)
          (shaders/unbind-shader-program)
          (cleanup/cleanup)
          (glfw/terminate)
