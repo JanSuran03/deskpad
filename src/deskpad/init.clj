@@ -3,7 +3,7 @@
             [cljgl.common.cleanup :as cleanup]
             [cljgl.common.colors :as colors]
             [cljgl.common.gl-util :as gl-util]
-            [deskpad.callbacks :as callbacks]
+            [deskpad.callbacks :as callbacks :refer [MAX-PENGUINS]]
             [cljgl.glfw.glfw :as glfw]
             [cljgl.math.matrix4f :as mat4f]
             [cljgl.opengl.gl :as gl]
@@ -35,8 +35,29 @@
 (defn init []
   (init-window)
   ;(gl/blend)
+  #_(renderer/setup-renderer {:shaders-source-path        (util/shaders-root "triangle-with-texture.glsl")
+                              :usage-type                 :static-draw
+                              :vertex-buffer              {:attributes-setups [{:components 2
+                                                                                :gl-type    :gl-float
+                                                                                :normalize? false
+                                                                                :id         :vertpos}
+                                                                               {:components 2
+                                                                                :gl-type    :gl-float
+                                                                                :normalize? false
+                                                                                :id         :texpos}]}
+                              :vertex-data                [{:vertpos [100 100] :texpos [0 0]}
+                                                           {:vertpos [700 100] :texpos [1 0]}
+                                                           {:vertpos [700 500] :texpos [1 1]}
+                                                           {:vertpos [100 500] :texpos [0 1]}
+                                                           {:vertpos [900 500] :texpos [0 0]}
+                                                           {:vertpos [1500 500] :texpos [1 0]}
+                                                           {:vertpos [1500 900] :texpos [1 1]}
+                                                           {:vertpos [900 900] :texpos [0 1]}]
+                              :indices                    [0 1 2 2 3 0, 4 5 6 6 7 4]
+                              :shader-program-lookup-name :shader/hello-rectangle
+                              :renderer-lookup-name       :renderer/hello-rectangle})
   (renderer/setup-renderer {:shaders-source-path        (util/shaders-root "triangle-with-texture.glsl")
-                            :usage-type                 :static-draw
+                            :usage-type                 :dynamic-draw
                             :vertex-buffer              {:attributes-setups [{:components 2
                                                                               :gl-type    :gl-float
                                                                               :normalize? false
@@ -45,15 +66,13 @@
                                                                               :gl-type    :gl-float
                                                                               :normalize? false
                                                                               :id         :texpos}]}
-                            :vertex-data                [{:vertpos [100 100] :texpos [0 0]}
-                                                         {:vertpos [700 100] :texpos [1 0]}
-                                                         {:vertpos [700 500] :texpos [1 1]}
-                                                         {:vertpos [100 500] :texpos [0 1]}
-                                                         {:vertpos [900 500] :texpos [0 0]}
-                                                         {:vertpos [1500 500] :texpos [1 0]}
-                                                         {:vertpos [1500 900] :texpos [1 1]}
-                                                         {:vertpos [900 900] :texpos [0 1]}]
-                            :indices                    [0 1 2 2 3 0, 4 5 6 6 7 4]
+                            :vbo-byte-size              (* (gl-util/sizeof :gl-float)
+                                                           4 ; vertices by penguin
+                                                           (+ 2 2) ; 2 vertex coords, 2 relative penguin image coordinates
+                                                           MAX-PENGUINS)
+                            :ebo-byte-size              (* (gl-util/sizeof :gl-int)
+                                                           6 ; elements by penguin
+                                                           MAX-PENGUINS)
                             :shader-program-lookup-name :shader/hello-rectangle
                             :renderer-lookup-name       :renderer/hello-rectangle})
   (textures/texture (util/images-root "penguin.gif") :texture/penguin :texture-slot 0)
