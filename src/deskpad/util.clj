@@ -29,3 +29,5 @@
 
 (defn shaders-root [s] (str "resources/shaders/" s))
 (defn images-root [s] (str "resources/textures/" s))
+
+(defonce delta-time (atom 0) )

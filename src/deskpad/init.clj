@@ -16,14 +16,6 @@
 
 (defonce running?* (atom false))
 
-(def vertex-positions (list 100 100 0 0, 700 100 1 0, 700 500 1 1, 100 500 0 1))
-(def vertpos {:data  (float-array vertex-positions)
-              :usage :static-draw})
-
-(def vertex-positions-indices (list 0 1 2 2 3 0))
-(def vertposidxs {:data  (int-array vertex-positions-indices)
-                  :usage :static-draw})
-
 (defn init-window []
   (glfw/enable-error-callback-print)
   (when-not (glfw/init)
@@ -44,16 +36,26 @@
   (init-window)
   ;(gl/blend)
   (renderer/setup-renderer {:shaders-source-path        (util/shaders-root "triangle-with-texture.glsl")
-                            :vertex-positions           vertpos
-                            :vertex-positions-indices   vertposidxs
-                            :attributes-setups          [{:components 2
-                                                          :gl-type    :gl-float
-                                                          :normalize? false}
-                                                         {:components 2
-                                                          :gl-type    :gl-float
-                                                          :normalize? false}]
+                            :usage-type                 :static-draw
+                            :vertex-buffer              {:attributes-setups [{:components 2
+                                                                              :gl-type    :gl-float
+                                                                              :normalize? false
+                                                                              :id         :vertpos}
+                                                                             {:components 2
+                                                                              :gl-type    :gl-float
+                                                                              :normalize? false
+                                                                              :id         :texpos}]}
+                            :vertex-data                [{:vertpos [100 100] :texpos [0 0]}
+                                                         {:vertpos [700 100] :texpos [1 0]}
+                                                         {:vertpos [700 500] :texpos [1 1]}
+                                                         {:vertpos [100 500] :texpos [0 1]}
+                                                         {:vertpos [900 500] :texpos [0 0]}
+                                                         {:vertpos [1500 500] :texpos [1 0]}
+                                                         {:vertpos [1500 900] :texpos [1 1]}
+                                                         {:vertpos [900 900] :texpos [0 1]}]
+                            :indices                    [0 1 2 2 3 0, 4 5 6 6 7 4]
                             :shader-program-lookup-name :shader/hello-rectangle
-                            :renderer-id                :renderer/hello-rectangle})
+                            :renderer-lookup-name       :renderer/hello-rectangle})
   (textures/texture (util/images-root "penguin.gif") :texture/penguin :texture-slot 0)
   (when true
     (GL33/glBlendFunc GL33/GL_SRC_ALPHA GL33/GL_ONE_MINUS_SRC_ALPHA)
@@ -75,6 +77,7 @@
 
 (defn gl-loop []
   (let [[r g b] (colors/get :teal)]
+    (reset! util/delta-time (System/currentTimeMillis))
     (while (not (glfw/should-window-close? @window*))
       (debug/assert-all
         (gl/clear-color r g b 0)
