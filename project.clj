@@ -8,8 +8,9 @@
 (defn jvm-opts
   "Returns a complete vector of jvm-opts for the current os."
   [] (let [os (eval/get-os)]
-       (vec (set (concat (get JVM-OPTS :common)
-                   (get JVM-OPTS os))))))
+       (into (vec (set (concat (get JVM-OPTS :common)
+                         (get JVM-OPTS os))))
+         ["-Djdk.attach.allowAttachSelf"])))
 
 (def lwjgl-ns "org.lwjgl")
 (def lwjgl-version "3.3.1")
@@ -59,11 +60,12 @@
     lwjgl-modules))
 
 (def all-dependencies
-  (into '[[org.clojars.jansuran03/cljgl "0.1.0"]
+  (into '[[com.clojure-goes-fast/clj-async-profiler "1.0.0-alpha1"]
           [io.github.spair/imgui-java-app "1.86.4"]
           [me.raynes/fs "1.4.6"]
           [org.clojure/clojure "1.10.1"]
           [org.clojure/core.async "1.5.648"]
+          [org.clojars.jansuran03/cljgl "0.1.0"]
           [org.joml/joml "1.10.4"]]
     (lwjgl-deps-with-natives)))
 

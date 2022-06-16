@@ -1,14 +1,14 @@
 (ns deskpad.callbacks
-  (:require [cljgl.glfw.callbacks :as callbacks]
+  (:require [cljgl.common.gl-util :as gl-util]
+            [cljgl.glfw.callbacks :as callbacks]
             [cljgl.glfw.glfw :as glfw]
             [cljgl.glfw.keys :as keys]
-            [deskpad.util :as util :refer [window*]]
-            [cljgl.opengl.shaders :as shaders]
             [cljgl.math.matrix4f :as mat4f]
+            [cljgl.opengl.shaders :as shaders]
+            [cljgl.opengl.buffers :as buffers]
             [cljgl.opengl.gl :as gl]
             [cljgl.opengl.renderer :as renderer]
-            [cljgl.opengl.buffers :as buffers]
-            [cljgl.common.gl-util :as gl-util])
+            [deskpad.util :as util :refer [window*]])
   (:import (org.lwjgl.glfw GLFW GLFWCursorPosCallback GLFWCursorEnterCallback GLFWScrollCallback GLFWCharCallback)
            (cljgl.opengl.renderer Renderer)))
 
@@ -45,7 +45,7 @@
                                       (util/log (str "CANNOT ADD MORE PENGUINS: LIMIT (" MAX-PENGUINS ") exceeded."))
                                       (let [{:keys [mouse-x mouse-y window-height]} @state*
                                             [x-min x-max y-min y-max] [(- mouse-x 50) (+ mouse-x 50) (- window-height mouse-y 40) (- window-height mouse-y -40)]
-                                            renderer (renderer/get-renderer :renderer/hello-rectangle)]
+                                            renderer (renderer/get-renderer :renderer/dynamic-penguins)]
                                         (println "Total penguins: " @penguin-index)
                                         (buffers/buffer-data (.-vbo renderer) (float-array [x-min y-min 0 0
                                                                                             x-max y-min 1 0
@@ -63,7 +63,7 @@
       (gl/viewport 0 0 width height)
       (swap! state* assoc :window-width width :window-height height)
       (let [mvp (calculate-mvp @state*)]
-        (shaders/set-uniform-mat4f (.-shader_program (renderer/get-renderer :renderer/hello-rectangle))
+        (shaders/set-uniform-mat4f (.-shader_program (renderer/get-renderer :renderer/dynamic-penguins))
                                    "u_MVP"
                                    mvp))))
 
@@ -75,7 +75,7 @@
           (let [new-state (-> new-state (update :translate-x + (- mouse-x x-pos))
                               (update :translate-y + (- y-pos mouse-y)))
                 mvp (calculate-mvp new-state)]
-            (shaders/set-uniform-mat4f (.-shader_program (renderer/get-renderer :renderer/hello-rectangle))
+            (shaders/set-uniform-mat4f (.-shader_program (renderer/get-renderer :renderer/dynamic-penguins))
                                        "u_MVP"
                                        mvp)
             (reset! state* new-state))
@@ -85,7 +85,7 @@
     (fn [window x-offset y-offset]
       (swap! state* update :scroll - y-offset)
       (let [mvp (calculate-mvp @state*)]
-        (shaders/set-uniform-mat4f (.-shader_program (renderer/get-renderer :renderer/hello-rectangle))
+        (shaders/set-uniform-mat4f (.-shader_program (renderer/get-renderer :renderer/dynamic-penguins))
                                    "u_MVP"
                                    mvp))))
 
